@@ -3,7 +3,7 @@
 
 DESCRIPTION:
 
-This program will automatically back up your existing files, and downpatch your game to version 1.27, whether it's the Rockstar version, or the Steam version. Once it's done so, you can restore the previously backed-up version of the game by running the program again.
+This program will automatically back up your existing files, and downgrade any GTA V install to version 1.27, whether it's the Rockstar version, or the Steam version. Once it's done so, you can restore the previously backed-up version of the game by running the program again.
 
 
 INSTRUCTIONS:
