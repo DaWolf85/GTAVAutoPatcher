@@ -1,4 +1,4 @@
-# GTA V Autopatcher v2.0 Release Candidate 1
+# GTA V Autopatcher v2.0
 
 
 DESCRIPTION:
