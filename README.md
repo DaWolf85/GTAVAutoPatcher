@@ -8,7 +8,7 @@ This program will automatically back up your existing files, and downgrade any G
 
 INSTRUCTIONS:
 
-1. Download ZIP package from https://drive.google.com/open?id=13BanLSa7552Gj_qt22ShnogXcewPblk-
+1. Download ZIP package from [Google Drive](https://drive.google.com/open?id=13BanLSa7552Gj_qt22ShnogXcewPblk-) or the [Releases](https://github.com/DaWolf85/GTAVAutoPatcher/releases) page
 
 2. Make sure the game runs and all first-time setup programs have been completed, before executing this script.
 
