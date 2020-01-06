@@ -1,4 +1,4 @@
-# GTA V Autopatcher v2.0
+# GTA V Autopatcher v2.1
 
 
 DESCRIPTION:
@@ -20,6 +20,8 @@ INSTRUCTIONS:
 
 6. Make sure the progress bar has reached the end, and the output window says "All done!"
 
+7. If you are on the Rockstar version, ensure you read rockstar.txt.
+
 
 TROUBLESHOOTING:
 
@@ -29,14 +31,14 @@ TROUBLESHOOTING:
 
 - If the autopatcher cannot access the game location to make changes, make sure you've exited the game, and that the Launcher/Social Club are not running.
 
-- If you get the message "Error response from Steam", open Steam, go to the game properties, click on the "Local Files" tab, and select the option "Verify Integrity of Game Files". Once the game has finished reinstalling, run it as many times as you need to until it completes all setups and boots up to the main menu. Then close it, close the Launcher, and run the autopatcher again.
+- If you get the message "Error response from Steam", open Steam, go to the game properties, click on the "Local Files" tab, and select the option "Verify Integrity of Game Files". Once the game has finished reinstalling, run it as many times as you need to until it completes all setups and boots up to the main menu. Then close it, close the Launcher, and run the autopatcher again. NOTE: If you get this error, please contact me (DaWolf85#0589 on Discord), as it should not occur since the latest Autopatcher update.
 
 
 NOTES:
 
 - If you need to ask any questions, report any bugs, or make any suggestions, please contact DaWolf85#0589 on Discord. Please make sure you have read all messages the script outputs before doing so. I may not be amused if your problem is one you could have solved on your own.
 
-- While this program is meant for those who are less technically inclined, or who have issues with patching their game, it is still only release candidate software and may have bugs. I cannot completely test all edge cases, as the script is relatively complex and I have limited time. Please report any bugs you may encounter.
+- While this program is meant for those who are less technically inclined, or who have issues with patching their game, it is not absolutely guaranteed to work. I cannot completely test all edge cases, as the script is relatively complex and I have limited time. Please report any bugs you may encounter.
 
 - I do not have access to the Rockstar version of the game (whether installed through Social Club, or the Launcher). As such, this is relatively untested on that version. Please let me know if you encounter any issues. I should be able to send you a testing version of the script to help us debug the issue. Please do not contact me in private if you are unwilling to help me test the issue, instead please ping me in public so others can step in to help test.
 
