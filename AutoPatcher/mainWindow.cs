@@ -18,6 +18,7 @@ namespace AutoPatcher {
 
         string GTAVLocation = null;
         Boolean isSteam;
+        Boolean hadFatalError = false;
 
         FileStream logFileLocation = null;
         StreamWriter logFile = null; 
@@ -25,31 +26,47 @@ namespace AutoPatcher {
         public mainWindow() {
             InitializeComponent();
 
+            //create log file, overwriting old one if necessary; used by log() function
             logFileLocation = new FileStream("log.txt", FileMode.Create);
             logFile = new StreamWriter(logFileLocation, Encoding.Default);
 
-            FolderBrowserDialog folderBrowserDialog1;
-            folderBrowserDialog1 = new FolderBrowserDialog();
-
+            //register event handlers
             btnFindGTAV.Click += new EventHandler(btnFindGTAV_Click);
             btnStart.Click += new EventHandler(btnStart_Click);
             tbGTAVPath.Click += new EventHandler(tbGTAVPath_Click);
             tbGTAVPath.KeyDown += new KeyEventHandler(tbGTAVPath_KeyDown);
             rbRestore.CheckedChanged += new EventHandler(rbRestore_CheckedChanged);
             this.Shown += new EventHandler(mainWindow_Shown);
+
+            //used for checking registry for GTA V path
             string tempGTAVLocation = null;
 
+            //Check if autopatcher files are accessible, and if not, throw an error
+            if (File.Exists("rockstar.txt") && Directory.Exists("Backup") &&
+                Directory.Exists("Common") && !isDirectoryEmpty("Common") &&
+                Directory.Exists("Rockstar") && !isDirectoryEmpty("Rockstar") &&
+                Directory.Exists("Steam") && !isDirectoryEmpty("Steam")) {
+                    log("Found autopatcher files.");
+            } else {
+                showError("[01] Could not access autopatcher files. Please ensure you have not moved this executable.", true);
+            }
+
+            //Open Rockstar registry location
             RegistryKey GTAVRegistry = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Rockstar Games\Grand Theft Auto V", true);
             if (GTAVRegistry != null) {
                 tempGTAVLocation = GTAVRegistry.GetValue("InstallFolder").ToString();
             } else {
+                //Open Steam registry location
                 GTAVRegistry = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Rockstar Games\GTAV", true);
                 if (GTAVRegistry != null) {
                     tempGTAVLocation = GTAVRegistry.GetValue("InstallFolderSteam").ToString();
+                    //NOTE: this registry key only seems to exist on older versions, and I have never seen it point to the correct location either
+                    //nonetheless, we check it just in case
                 }
             }
 
-            if (isValidGTAVPath(tempGTAVLocation)) {
+            //check for null because Path.Combine can throw errors without it
+            if (tempGTAVLocation != null && isValidGTAVPath(tempGTAVLocation)) {
                 GTAVLocation = tempGTAVLocation;
             } else {
                 if (isValidGTAVPath(@"C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto V")) {
@@ -61,6 +78,7 @@ namespace AutoPatcher {
 
             if (GTAVLocation != null) {
                 tbGTAVPath.Text = GTAVLocation;
+                //set text box color to black; because it is gray to start
                 tbGTAVPath.ForeColor = Color.Black;
                 foundGTAV();
             } else {
@@ -68,17 +86,20 @@ namespace AutoPatcher {
             }
         }
 
+        //method to check if GTA V is installed at a given folder location
         Boolean isValidGTAVPath(string GTAVLocation) {
-            string path = GTAVLocation + @"\GTAVLanguageSelect.exe";
+            //we use GTAVLanguageSelect.exe because it exists on both versions, and has not changed with updates over the years
+            //thus, it is extremely unlikely that an install will not have it
+            string path = Path.Combine(GTAVLocation, "GTAVLanguageSelect.exe");
             if (File.Exists(path)) return true;
             return false;
         }
 
+        //method to check if the game version at a given folder location is 1.27
         Boolean isOldPatch(string GTAVLocation) {
-            string path = GTAVLocation + @"\update\update.rpf";
+            string path = Path.Combine(GTAVLocation, @"update\update.rpf");
             try {
                 long fileSize = new System.IO.FileInfo(path).Length;
-                //Console.WriteLine(fileSize);
                 if (fileSize == 352569344) return true;
             } catch (System.IO.FileNotFoundException) {
                 //no need to do anything here
@@ -86,36 +107,75 @@ namespace AutoPatcher {
             return false;
         }
 
+        //method to check if the game version at a given folder location is Steam or Rockstar
         Boolean isSteamVersion(string GTAVLocation) {
-            string path = GTAVLocation + @"\steam_api64.dll";
+            //Steam version should have this file
+            string path = Path.Combine(GTAVLocation, "steam_api64.dll");
             if (File.Exists(path)) return true;
-            return false;
+            //Rockstar version should have this file
+            path = Path.Combine(GTAVLocation, "GPUPerfAPIDX11-x64.dll");
+            return !File.Exists(path);
         }
 
+        //method to tell if a directory is empty (is a function for readability)
         public bool isDirectoryEmpty(string path) {
             //NOTE: will return false even if there are non-empty subfolders
             return !Directory.EnumerateFiles(path).Any();
         }
 
+        //method to copy a file
         void copyFile(string fileName, string sourcePath="", string targetPath=null) {
             //can't have GTAVLocation as a default parameter so this is what we're reduced to
             if (targetPath == null) targetPath = GTAVLocation;
 
             string sourceFile = Path.Combine(sourcePath, fileName);
             string targetFile = Path.Combine(targetPath, fileName);
-            File.Copy(sourceFile, targetFile, true);
-            log("Copied " + fileName + ".");
+            if (File.Exists(sourceFile)) {
+                File.Copy(sourceFile, targetFile, true);
+                log("Copied " + fileName + ".");
+            } else {
+                log("Could not copy " + fileName + ". File does not exist.");
+            }
         }
 
+        //method to display text in our output box, and then log it to a file
         void log(string output) {
             tbOutput.AppendText(output + Environment.NewLine);
             logFile.WriteLine(output);
+            //StreamWriter is buffered, so we have to flush it
             logFile.Flush();
         }
 
+        //method to show/log errors, and gracefully disable the program if they are fatal
+        void showError(string msg, Boolean isFatal = false) {
+            if (isFatal) {
+                log("A fatal error has occurred and the program cannot continue." + Environment.NewLine);
+                log("Error description:");
+                log(msg);
+
+                //disable all entry fields and buttons
+                grpSelectPatch.Enabled = false;
+                tbGTAVPath.Enabled = false;
+                btnFindGTAV.Enabled = false;
+                btnStart.Enabled = false;
+
+                //tell other things to not enable them again
+                hadFatalError = true;
+            } else {
+                log("A non-fatal error has occured, but the program will continue." + Environment.NewLine);
+                log("Error description:");
+                log(msg);
+            }
+        }
+
+        //method to execute version checking and set variables
+        //should only be run after GTAVLocation is verified to be valid
         void foundGTAV() {
             btnFindGTAV.Enabled = false;
             tbGTAVPath.Enabled = false;
+
+            //avoids buttons enabling and text being output, if the autopatcher is in a non-functional state
+            if (hadFatalError) return;
 
             if (isOldPatch(GTAVLocation)) {
                 log("Found GTA V and the version is 1.27.");
@@ -136,22 +196,27 @@ namespace AutoPatcher {
         }
 
         void btnFindGTAV_Click(object sender, System.EventArgs e) {
+            //if you just show the dialog you will not ensure you get a result, so we check for the OK
             if (fbFindGTAV.ShowDialog() == DialogResult.OK) {
                 if (isValidGTAVPath(fbFindGTAV.SelectedPath)) {
                     GTAVLocation = fbFindGTAV.SelectedPath;
                     tbGTAVPath.Text = GTAVLocation;
+                    //set text box color to black; because it is gray to start
                     tbGTAVPath.ForeColor = Color.Black;
                     foundGTAV();
                 } else {
                     tbGTAVPath.Text = fbFindGTAV.SelectedPath;
+                    //set text box color to black; because it is gray to start
                     tbGTAVPath.ForeColor = Color.Black;
                     ToolTip tt = new ToolTip();
+                    //note that the y value is positive, but that moves the tooltip DOWN
                     tt.Show("This directory does not contain GTA V.", tbGTAVPath, 0, 20, 3000);
                 }
             }
         }
 
         void btnStart_Click(object sender, System.EventArgs e) {
+
             btnStart.Enabled = false;
             grpSelectPatch.Enabled = false;
 
@@ -160,6 +225,7 @@ namespace AutoPatcher {
                 Directory.Delete(@"C:\Program Files\Rockstar Games\Social Club", true);
                 Directory.Delete(@"C:\Program Files (x86)\Rockstar Games\Social Club", true);
                 log("Social Club files deleted.");
+                //exception is called ex because eventargs are already e
             } catch (DirectoryNotFoundException ex) {
                 log("Social Club files already deleted!");
             }
@@ -189,7 +255,7 @@ namespace AutoPatcher {
                         copyFile("update.rpf", Path.Combine(GTAVLocation, "update"), @"Backup\Common");
                     }
                 }
-                progress.Value = 10;
+                progress.Value = 30;
 
                 //downgrade
                 log("Starting downgrade...");
@@ -201,13 +267,20 @@ namespace AutoPatcher {
                         Thread.Sleep(100);
                     }
                 }
-                progress.Value = 25;
+                progress.Value = 40;
                 if (isSteam) {
                     copyFile("GTA5.exe", "Steam", GTAVLocation);
                     copyFile("steam_api64.dll", "Steam", GTAVLocation);
                     copyFile("update.rpf", "Common", Path.Combine(GTAVLocation, "update"));
                     File.Copy(@"Steam\GTAVLauncher.exe", Path.Combine(GTAVLocation, "PlayGTAV.exe"), true);
                     progress.Value = 60;
+
+                    //NOTE: With every update of the Steam version these registry locations must be checked
+                    //As the key names change with the versions of Rockstar Launcher and Social Club that Steam installs
+                    Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam\Apps\271590", "Launcher1017199", 1, RegistryValueKind.DWord);
+                    Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam\Apps\271590", "SocialClub2043", 1, RegistryValueKind.DWord);
+                    log("Steam registry modified to prevent first-time setups.");
+                    progress.Value = 70;
 
                     log("Launching Social Club installer (script will pause until setup is complete)...");
                     using (Process socialClubInstaller = Process.Start(@"Steam\Social-Club-v1.1.7.8-Setup.exe")) {
@@ -219,20 +292,24 @@ namespace AutoPatcher {
                     copyFile("GFSDK_ShadowLib.win64.dll", "Rockstar", GTAVLocation);
                     copyFile("x64a.rpf", "Rockstar", GTAVLocation);
                     copyFile("update.rpf", "Common", Path.Combine(GTAVLocation, "update"));
-                    progress.Value = 50;
+                    progress.Value = 60;
 
                     log("Launching Social Club installer (script will pause until setup is complete)...");
                     using (Process socialClubInstaller = Process.Start(@"rockstar\Social-Club-v1.1.6.0-Setup.exe")) {
                         socialClubInstaller.WaitForExit();
                     }
-                    progress.Value = 75;
+                    progress.Value = 90;
 
                     log("Creating Offline shortcut on desktop...");
+                    //yes, we have to use Windows Script Host to create shortcuts
+                    //no, I don't like it either
                     IWshRuntimeLibrary.WshShell scriptHost = new IWshRuntimeLibrary.WshShell();
                     string desktopLocation = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
                     IWshRuntimeLibrary.IWshShortcut onlineShortcut = scriptHost.CreateShortcut(Path.Combine(desktopLocation, "GTA V Offline.lnk")) as IWshRuntimeLibrary.IWshShortcut;
                     onlineShortcut.TargetPath = Path.Combine(GTAVLocation, "GTAVLauncher.exe");
+                    //I'm told setting WorkingDirectory is necessary, but I didn't actually bother testing that
                     onlineShortcut.WorkingDirectory = GTAVLocation;
+                    //IconLocation expects an absolute path, so we have to get our current directory
                     onlineShortcut.IconLocation = Path.Combine(Directory.GetCurrentDirectory(), @"Rockstar\gta_v_icon.ico");
                     onlineShortcut.Arguments = "-scOfflineOnly";
                     onlineShortcut.Save();
@@ -272,15 +349,17 @@ namespace AutoPatcher {
         }
 
         void tbGTAVPath_Click(object sender, System.EventArgs e) {
+            //if text is the default text, we clear it
             if (tbGTAVPath.Text == "Enter GTA V folder location or click Find") {
                 tbGTAVPath.Text = "";
                 tbGTAVPath.ForeColor = Color.Black;
             }
+            //otherwise just let everything happen
         }
 
         void tbGTAVPath_KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Enter) {
-                //double if, because I need the else clause to trigger only if Enter was pressed
+                //double if, because we need the else clause to trigger only if Enter was pressed
                 if (isValidGTAVPath(tbGTAVPath.Text)) {
                     GTAVLocation = tbGTAVPath.Text;
                     foundGTAV();
@@ -292,31 +371,32 @@ namespace AutoPatcher {
         }
 
         private void rbRestore_CheckedChanged(Object sender, EventArgs e) {
+            //if Restore is checked, make sure we actually have things to restore
             if (rbRestore.Checked == true) {
                 if (isDirectoryEmpty(@"Backup\Steam") && isDirectoryEmpty(@"Backup\Steam")) {
                     ToolTip tt = new ToolTip();
+                    //yes, grpSelectPatch is 69 pixels tall; no, it was not actually intentional
                     tt.Show("Backup folders are empty.", grpSelectPatch, 0, 69, 3000);
+                    //I could have unselected both radiobuttons, but I felt it was more clear if I forced the Downgrade button to select
                     rbDowngrade.Checked = true;
+                    //beeping at people is the most important part of programming
                     SystemSounds.Beep.Play();
                 }
             }
         }
 
         void mainWindow_Shown(object sender, System.EventArgs e) {
+            /*
+            If we output too much stuff for tbOutput in the initialization phase
+            Then it won't auto-scroll like it does everywhere else
+            So this code will scroll it manually
+            */
             tbOutput.Focus();
             tbOutput.SelectionStart = tbOutput.TextLength;
             tbOutput.ScrollToCaret();
 
             //remove focus on textbox
             lbGTAVPath.Focus();
-        }
-
-        void applicationExit(object sender, EventArgs e) {
-            try {
-                logFile.Flush();
-                logFile.Dispose();
-                logFileLocation.Dispose();
-            } catch { }
         }
     }
 }

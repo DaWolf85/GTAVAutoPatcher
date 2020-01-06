@@ -146,7 +146,7 @@
             this.Controls.Add(this.btnStart);
             this.Controls.Add(this.grpSelectPatch);
             this.Name = "mainWindow";
-            this.Text = "GTA V AutoPatcher v2.0 RC1";
+            this.Text = "GTA V AutoPatcher v2.1";
             this.grpSelectPatch.ResumeLayout(false);
             this.grpSelectPatch.PerformLayout();
             this.ResumeLayout(false);
