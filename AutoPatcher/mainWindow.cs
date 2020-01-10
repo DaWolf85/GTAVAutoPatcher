@@ -124,13 +124,20 @@ namespace AutoPatcher {
         }
 
         //method to copy a file
-        void copyFile(string fileName, string sourcePath="", string targetPath=null) {
+        void copyFile(string fileName, string sourcePath="", string targetPath=null, int desiredSize=0) {
             //can't have GTAVLocation as a default parameter so this is what we're reduced to
             if (targetPath == null) targetPath = GTAVLocation;
 
             string sourceFile = Path.Combine(sourcePath, fileName);
             string targetFile = Path.Combine(targetPath, fileName);
             if (File.Exists(sourceFile)) {
+                //this piece of code is in case we want to check file sizes to make backups more reliable
+                if (desiredSize > 0) {
+                    long fileSize = new System.IO.FileInfo(sourceFile).Length;
+                    if (fileSize != desiredSize) {
+                        log("Did not copy " + fileName + ". File is not the correct version (this may break backups).");
+                    }
+                }
                 File.Copy(sourceFile, targetFile, true);
                 log("Copied " + fileName + ".");
             } else {
@@ -373,7 +380,7 @@ namespace AutoPatcher {
         private void rbRestore_CheckedChanged(Object sender, EventArgs e) {
             //if Restore is checked, make sure we actually have things to restore
             if (rbRestore.Checked == true) {
-                if (isDirectoryEmpty(@"Backup\Steam") && isDirectoryEmpty(@"Backup\Steam")) {
+                if (isDirectoryEmpty(@"Backup\Rockstar") && isDirectoryEmpty(@"Backup\Steam")) {
                     ToolTip tt = new ToolTip();
                     //yes, grpSelectPatch is 69 pixels tall; no, it was not actually intentional
                     tt.Show("Backup folders are empty.", grpSelectPatch, 0, 69, 3000);
