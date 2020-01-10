@@ -31,6 +31,8 @@ TROUBLESHOOTING:
 
 - If the autopatcher cannot access the game location to make changes, make sure you've exited the game, and that the Launcher/Social Club are not running.
 
+- If you get the message "Grand Theft Auto V exited unexpectedly" on the Rockstar version, you may have an incomplete or corrupted mod install. In order to resolve this for absolute certain, you will have to uninstall the game, verify all files are deleted, and then reinstall.
+
 - If you get the message "Error response from Steam", open Steam, go to the game properties, click on the "Local Files" tab, and select the option "Verify Integrity of Game Files". Once the game has finished reinstalling, run it as many times as you need to until it completes all setups and boots up to the main menu. Then close it, close the Launcher, and run the autopatcher again. NOTE: If you get this error, please contact me (DaWolf85#0589 on Discord), as it should not occur since the latest Autopatcher update.
 
 
