@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using System.ServiceProcess;
 
 namespace AutoPatcher {
     public partial class mainWindow : Form {
@@ -244,6 +245,56 @@ namespace AutoPatcher {
             progress.Value = 5;
             
             if (rbDowngrade.Checked == true) {
+
+                foreach (Process gtavProcess in Process.GetProcessesByName("GTA5")) {
+                    string gtavFile = gtavProcess.MainModule.FileName;
+                    FileVersionInfo gtavInfo = FileVersionInfo.GetVersionInfo(gtavFile);
+                    if (gtavInfo.CompanyName.Contains("Rockstar")) {
+                        log("Please ensure you have closed the game before continuing. This program will pause until you do so.");
+                        gtavProcess.WaitForExit();
+                    }
+                }
+
+                log("Closing Rockstar Launcher and Social Club...");
+
+                try {
+                    foreach (Process launcher in Process.GetProcessesByName("Launcher")) {
+                        string launcherFile = launcher.MainModule.FileName;
+                        FileVersionInfo launcherInfo = FileVersionInfo.GetVersionInfo(launcherFile);
+                        if (launcherInfo.CompanyName.Contains("Rockstar")) {
+                            launcher.Kill();
+                            launcher.WaitForExit();
+                        }
+                    }
+                    foreach (Process launcherPatcher in Process.GetProcessesByName("LauncherPatcher")) {
+                        string launcherPatcherFile = launcherPatcher.MainModule.FileName;
+                        FileVersionInfo launcherPatcherInfo = FileVersionInfo.GetVersionInfo(launcherPatcherFile);
+                        if (launcherPatcherInfo.CompanyName.Contains("Rockstar")) {
+                            launcherPatcher.Kill();
+                            launcherPatcher.WaitForExit();
+                        }
+                    }
+                    foreach (Process rockstarSvc in Process.GetProcessesByName("RockstarService")) {
+                        rockstarSvc.Kill();
+                        rockstarSvc.WaitForExit();
+                    }
+                    foreach (Process rockstarHelper in Process.GetProcessesByName("RockstarSteamHelper")) {
+                        rockstarHelper.Kill();
+                        rockstarHelper.WaitForExit();
+                    }
+                    foreach (Process socialclubHelper in Process.GetProcessesByName("SocialClubHelper")) {
+                        socialclubHelper.Kill();
+                        socialclubHelper.WaitForExit();
+                    }
+                } catch (Exception ex) {
+                    //do nothing
+                    //this is because the above processes can exit before we reference them
+                    //as none of that is thread-safe (and probably can't be)
+                    //so we can get errors
+                    //probably I could test for a while and find all the exact exceptions that throws
+                    //but I'm lazy, and this is simple
+                }
+                progress.Value = 5;
                 //backup
                 log("Starting backup...");
                 if (isOldPatch(GTAVLocation)) {
@@ -266,7 +317,8 @@ namespace AutoPatcher {
 
                 //downgrade
                 log("Starting downgrade...");
-                log("Launching Rockstar Launcher uninstaller (script will pause until setup is complete)...");
+
+                log("Launching Rockstar Launcher uninstaller (program will pause until setup is complete)...");
                 using (Process launcherUninstaller = Process.Start(@"Common\uninstall.exe")) {
                     launcherUninstaller.WaitForExit();
                     Thread.Sleep(100);
@@ -288,9 +340,19 @@ namespace AutoPatcher {
                     Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam\Apps\271590", "SocialClub2043", 1, RegistryValueKind.DWord);
                     log("Steam registry modified to prevent first-time setups.");
                     progress.Value = 70;
+                    
+                    log("Installing Visual C++ 2008 SP1 Redistributable (program will pause until setup is complete)...");
+                    //need command line option of /q to run install in background so user can't screw with it like we all know they would
+                    ProcessStartInfo vcredistInfo = new ProcessStartInfo(@"common\vcredist_x64.exe", "/q");
+                    using (Process vcredist = new Process()) {
+                        vcredist.StartInfo = vcredistInfo;
+                        vcredist.Start();
+                        vcredist.WaitForExit();
+                    }
+                    progress.Value = 80;
 
-                    log("Launching Social Club installer (script will pause until setup is complete)...");
-                    using (Process socialClubInstaller = Process.Start(@"Steam\Social-Club-v1.1.7.8-Setup.exe")) {
+                    log("Launching Social Club installer (program will pause until setup is complete)...");
+                    using (Process socialClubInstaller = Process.Start(@"Steam\Social-Club-v1.1.6.0-Setup.exe")) {
                         socialClubInstaller.WaitForExit();
                     }
                 } else {
@@ -301,7 +363,7 @@ namespace AutoPatcher {
                     copyFile("update.rpf", "Common", Path.Combine(GTAVLocation, "update"));
                     progress.Value = 60;
 
-                    log("Launching Social Club installer (script will pause until setup is complete)...");
+                    log("Launching Social Club installer (program will pause until setup is complete)...");
                     using (Process socialClubInstaller = Process.Start(@"rockstar\Social-Club-v1.1.6.0-Setup.exe")) {
                         socialClubInstaller.WaitForExit();
                     }
@@ -340,12 +402,12 @@ namespace AutoPatcher {
                     copyFile("update.rpf", @"Backup\Common", Path.Combine(GTAVLocation, "update"));
                 }
                 progress.Value = 25;
-                log("Launching Rockstar Launcher installer (script will pause until setup is complete)...");
+                log("Launching Rockstar Launcher installer (program will pause until setup is complete)...");
                 using (Process launcherInstaller = Process.Start(@"Common\Rockstar-Games-Launcher.exe")) {
                     launcherInstaller.WaitForExit();
                 }
                 progress.Value = 60;
-                log("Launching Social Club installer (script will pause until setup is complete)...");
+                log("Launching Social Club installer (program will pause until setup is complete)...");
                 using (Process socialClubInstaller = Process.Start(@"Common\Social-Club-Setup.exe")) {
                     socialClubInstaller.WaitForExit();
                 }
@@ -387,7 +449,7 @@ namespace AutoPatcher {
                     //I could have unselected both radiobuttons, but I felt it was more clear if I forced the Downgrade button to select
                     rbDowngrade.Checked = true;
                     //beeping at people is the most important part of programming
-                    SystemSounds.Beep.Play();
+                    //SystemSounds.Beep.Play();
                 }
             }
         }
