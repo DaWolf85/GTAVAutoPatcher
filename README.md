@@ -1,4 +1,4 @@
-# GTA V Autopatcher v2.1.1
+# GTA V Autopatcher v2.2
 
 
 DESCRIPTION:
@@ -10,9 +10,9 @@ INSTRUCTIONS:
 
 1. Download ZIP package from [Google Drive](https://drive.google.com/open?id=13BanLSa7552Gj_qt22ShnogXcewPblk-) or the [Releases](https://github.com/DaWolf85/GTAVAutoPatcher/releases) page
 
-2. Make sure the game runs and all first-time setup programs have been completed, before running this program.
+2. Make sure you have a functioning install without any mods installed (downgrading a modded game can cause corruption).
 
-3. Make sure you have exited the game, and that the Rockstar Launcher/Social Club are not running.
+3. Make sure you have exited the game.
 
 4. Run AutoPatcher.exe and follow the on-screen directions.
 
@@ -29,11 +29,11 @@ TROUBLESHOOTING:
 
 - If the autopatcher cannot access its own files, please ensure you are running it from the folder it came in. You do not need to move it, or any of the files it came packaged with.
 
-- If the autopatcher cannot access the game location to make changes, make sure you've exited the game, and that the Launcher/Social Club are not running.
+- If the autopatcher cannot access the game location to make changes, make sure you've exited the game, and that the Launcher/Social Club are not running. NOTE: If you get this error, please contact me (DaWolf85#0589 on Discord), as it should not occur since the latest Autopatcher update.
 
 - If you get the message "Grand Theft Auto V exited unexpectedly" on the Rockstar version, you may have an incomplete or corrupted mod install. In order to resolve this for absolute certain, you will have to uninstall the game, verify all files are deleted, and then reinstall.
 
-- If you get the message "Error response from Steam", open Steam, go to the game properties, click on the "Local Files" tab, and select the option "Verify Integrity of Game Files". Once the game has finished reinstalling, run it as many times as you need to until it completes all setups and boots up to the main menu. Then close it, close the Launcher, and run the autopatcher again. NOTE: If you get this error, please contact me (DaWolf85#0589 on Discord), as it should not occur since the latest Autopatcher update.
+- If you get the message "Error response from Steam", open Steam, go to the game properties, click on the "Local Files" tab, and select the option "Verify Integrity of Game Files". Once the game has finished reinstalling, run it as many times as you need to until it completes all setups and boots up to the main menu. Then close it, close the Launcher, and run the autopatcher again. NOTE: If you get this error, please contact me (DaWolf85#0589 on Discord), as it should not occur in the current version of the Autopatcher.
 
 
 NOTES:
