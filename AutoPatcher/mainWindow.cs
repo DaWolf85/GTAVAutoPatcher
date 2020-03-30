@@ -352,7 +352,7 @@ namespace AutoPatcher {
                     progress.Value = 80;
 
                     log("Launching Social Club installer (program will pause until setup is complete)...");
-                    using (Process socialClubInstaller = Process.Start(@"Steam\Social-Club-v1.1.6.0-Setup.exe")) {
+                    using (Process socialClubInstaller = Process.Start(@"Steam\Social-Club-v1.1.7.8-Setup.exe")) {
                         socialClubInstaller.WaitForExit();
                     }
                 } else {
