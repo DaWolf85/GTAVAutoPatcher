@@ -46,4 +46,4 @@ NOTES:
 
 
 
-This program is provided free for all uses under the terms of the Unlicense. The file license.txt contains more information if required.
+This program is provided free for all uses under the terms of the Unlicense. The file license.txt (in the release package) contains more information if required.
