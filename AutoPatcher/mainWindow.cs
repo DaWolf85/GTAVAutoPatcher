@@ -336,8 +336,8 @@ namespace AutoPatcher {
 
                     //NOTE: With every update of the Steam version these registry locations must be checked
                     //As the key names change with the versions of Rockstar Launcher and Social Club that Steam installs
-                    Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam\Apps\271590", "Launcher1017199", 1, RegistryValueKind.DWord);
-                    Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam\Apps\271590", "SocialClub2043", 1, RegistryValueKind.DWord);
+                    Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\\Rockstar Games\\GTAV", "Launcher1019234", 1, RegistryValueKind.DWord);
+                    Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam\Apps\271590", "SocialClub2052", 1, RegistryValueKind.DWord);
                     log("Steam registry modified to prevent first-time setups.");
                     progress.Value = 70;
                     
