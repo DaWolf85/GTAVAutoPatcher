@@ -349,7 +349,7 @@ namespace AutoPatcher {
                         vcredist.Start();
                         vcredist.WaitForExit();
                     }
-                    progress.Value = 80;
+                    progress.Value = 85;
 
                     log("Launching Social Club installer (program will pause until setup is complete)...");
                     using (Process socialClubInstaller = Process.Start(@"Steam\Social-Club-v1.1.7.8-Setup.exe")) {
