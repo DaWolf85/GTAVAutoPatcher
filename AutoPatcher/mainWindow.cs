@@ -250,7 +250,9 @@ namespace AutoPatcher {
                     string gtavFile = gtavProcess.MainModule.FileName;
                     FileVersionInfo gtavInfo = FileVersionInfo.GetVersionInfo(gtavFile);
                     if (gtavInfo.CompanyName.Contains("Rockstar")) {
-                        log("Please ensure you have closed the game before continuing. This program will pause until you do so.");
+                        log("GTA5.exe is running. If the game is open please close it.");
+                        log("If the game is not open, please check Task Manager to kill the process." + Environment.NewLine);
+                        log("This program will pause until the game process has closed.");
                         gtavProcess.WaitForExit();
                     }
                 }
