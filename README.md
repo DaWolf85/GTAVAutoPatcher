@@ -1,6 +1,13 @@
 # GTA V Autopatcher v2.2.2
 
 
+IMPORTANT NOTE:
+
+This program is no longer capable of downgrading GTA V (as Rockstar has issued updates that make it impossible to downgrade with simple methods). The Autopatcher will be left here in this state (including the readme) so that others can study it; but it should not be used to downgrade GTA V.
+
+If you are looking to downgrade, please instead take a look at [Project 1.27](https://github.com/TwosHusbandS/Project-127).
+
+
 DESCRIPTION:
 
 This program will automatically back up your existing files, and downgrade any GTA V install to version 1.27 - whether it's the Rockstar version, or the Steam version. Once it's done so, you can restore the previously backed-up version of the game by running the program again.
