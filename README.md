@@ -1,4 +1,4 @@
-# GTA V Autopatcher v2.2.2
+# GTA V Autopatcher v2.2.2 (DEPRECATED READ NOTES)
 
 
 IMPORTANT NOTE:
